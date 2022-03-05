@@ -18,20 +18,20 @@ class PhoneNumberLinkifier extends Linkifier {
           list.add(element);
         } else {
           // create the preceding TextElement
-          if (match.group(1).isNotEmpty) {
-            list.add(TextElement(match.group(1)));
+          if (match.group(1)?.isNotEmpty == true) {
+            list.add(TextElement(match.group(1)!));
           }
 
           // create the PhoneNumberElement
-          if (match.group(2).isNotEmpty) {
-            var phoneNumberText = match.group(2);
+          if (match.group(2)?.isNotEmpty == true) {
+            var phoneNumberText = match.group(2)!;
             var phoneNumberURL = "tel:" + phoneNumberText;
 
             list.add(PhoneNumberElement(phoneNumberText, phoneNumberURL));
           }
 
           // create the following TextElement
-          final text = element.text.replaceFirst(match.group(0), '');
+          final text = element.text.replaceFirst(match.group(0)!, '');
           if (text.isNotEmpty) {
             list.addAll(parse([TextElement(text)], options));
           }
