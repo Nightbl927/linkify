@@ -1,10 +1,13 @@
 import 'package:linkify/linkify.dart';
 
-// matches "any amount of text with a phone number"
-final _phoneNumberRegex = RegExp(r'(.*?)((\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4})', caseSensitive: false, dotAll: true);
+final _emailRegex = RegExp(
+  r'^(.*?)((mailto:)?[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z][A-Z]+)',
+  caseSensitive: false,
+  dotAll: true,
+);
 
-class PhoneNumberLinkifier extends Linkifier {
-  const PhoneNumberLinkifier();
+class EmailLinkifier extends Linkifier {
+  const EmailLinkifier();
 
   @override
   List<LinkifyElement> parse(elements, options) {
@@ -12,26 +15,24 @@ class PhoneNumberLinkifier extends Linkifier {
 
     elements.forEach((element) {
       if (element is TextElement) {
-        var match = _phoneNumberRegex.firstMatch(element.text);
+        final match = _emailRegex.firstMatch(element.text);
 
         if (match == null) {
           list.add(element);
         } else {
-          // create the preceding TextElement
+          final text = element.text.replaceFirst(match.group(0)!, '');
+
           if (match.group(1)?.isNotEmpty == true) {
             list.add(TextElement(match.group(1)!));
           }
 
-          // create the PhoneNumberElement
           if (match.group(2)?.isNotEmpty == true) {
-            var phoneNumberText = match.group(2)!;
-            var phoneNumberURL = "tel:" + phoneNumberText;
-
-            list.add(PhoneNumberElement(phoneNumberText, phoneNumberURL));
+            // Always humanize emails
+            list.add(EmailElement(
+              match.group(2)!.replaceFirst(RegExp(r'mailto:'), ''),
+            ));
           }
 
-          // create the following TextElement
-          final text = element.text.replaceFirst(match.group(0)!, '');
           if (text.isNotEmpty) {
             list.addAll(parse([TextElement(text)], options));
           }
@@ -45,17 +46,23 @@ class PhoneNumberLinkifier extends Linkifier {
   }
 }
 
-class PhoneNumberElement extends LinkableElement {
-  PhoneNumberElement(String text, String url) : super(text, url);
+/// Represents an element containing an email address
+class EmailElement extends LinkableElement {
+  final String emailAddress;
+
+  EmailElement(this.emailAddress) : super(emailAddress, 'mailto:$emailAddress');
 
   @override
   String toString() {
-    return "LinkElement: '$url' ($text)";
+    return "EmailElement: '$emailAddress' ($text)";
   }
 
   @override
   bool operator ==(other) => equals(other);
 
   @override
-  bool equals(other) => other is UrlElement && super.equals(other);
+  bool equals(other) =>
+      other is EmailElement &&
+      super.equals(other) &&
+      other.emailAddress == emailAddress;
 }
