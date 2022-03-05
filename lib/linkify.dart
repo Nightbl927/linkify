@@ -6,6 +6,8 @@ export 'package:linkify/src/email.dart' show EmailLinkifier, EmailElement;
 export 'package:linkify/src/url.dart' show UrlLinkifier, UrlElement;
 export 'package:linkify/src/user_tag.dart'
     show UserTagLinkifier, UserTagElement;
+export 'package:linkify/src/phone_number.dart'
+    show PhoneNumberLinkifier, PhoneNumberElement;
 
 abstract class LinkifyElement {
   final String text;
