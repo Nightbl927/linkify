@@ -1,7 +1,8 @@
 import 'package:linkify/linkify.dart';
 
 // matches "any amount of text with a phone number"
-final _phoneNumberRegex = RegExp(r'(.*?)((\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4})', caseSensitive: false, dotAll: true);
+final _phoneNumberRegex = RegExp(r'(.*?)((\+\d{1,3}( )?)?((\(\d{1,3}\))|\d{1,3})[- .]?\d{3,4}[- .]?\d{4})', caseSensitive: false, dotAll: true);
+//final _phoneNumberRegex = RegExp(r'(.*?)(([+]?\d{0,4}( )?[- .]?)?((\(\d{1,4}\))|\d{1,4})[- .]?\d{3,4}[- .]?\d{4})', caseSensitive: false, dotAll: true);
 
 class PhoneNumberLinkifier extends Linkifier {
   const PhoneNumberLinkifier();
@@ -9,7 +10,6 @@ class PhoneNumberLinkifier extends Linkifier {
   @override
   List<LinkifyElement> parse(elements, options) {
     final list = <LinkifyElement>[];
-
     elements.forEach((element) {
       if (element is TextElement) {
         var match = _phoneNumberRegex.firstMatch(element.text);
@@ -19,12 +19,12 @@ class PhoneNumberLinkifier extends Linkifier {
         } else {
           // create the preceding TextElement
           if (match.group(1)?.isNotEmpty == true) {
-            list.add(TextElement(match.group(1)!));
+            list.add(TextElement(""));
           }
 
           // create the PhoneNumberElement
           if (match.group(2)?.isNotEmpty == true) {
-            var phoneNumberText = match.group(2)!;
+            var phoneNumberText = match.group(0)!;
             var phoneNumberURL = "tel:" + phoneNumberText;
 
             list.add(PhoneNumberElement(phoneNumberText, phoneNumberURL));
